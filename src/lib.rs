@@ -7,12 +7,12 @@ pub struct FileEntity {
 }
 
 #[derive(Debug)]
-pub struct DirEntity {
+struct DirEntity {
     files: Vec<FileEntity>,
     dirs: Vec<path::PathBuf>,
 }
 
-pub fn get_dir_entity(path: path::PathBuf) -> Option<DirEntity> {
+fn get_dir_entity(path: path::PathBuf) -> Option<DirEntity> {
     match fs::read_dir(path) {
         Ok(i) => {
             let mut files: Vec<FileEntity> = Vec::new();
@@ -55,5 +55,12 @@ pub fn walk_dir_entity(path: path::PathBuf) -> Vec<FileEntity> {
             None => break,
         }
     }
+    files
+}
+
+pub fn biggest_files_in_dir(path: path::PathBuf) -> Vec<FileEntity> {
+    let mut files = walk_dir_entity(path);
+    files.sort_by(|a, b| b.size.cmp(&a.size));
+    files.truncate(10);
     files
 }
