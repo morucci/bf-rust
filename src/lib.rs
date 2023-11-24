@@ -1,5 +1,6 @@
 use std::{fs, path};
 
+const TOP: usize = 10;
 #[derive(Debug)]
 pub struct FileEntity {
     path: path::PathBuf,
@@ -20,6 +21,7 @@ fn get_dir_entity(path: path::PathBuf) -> Option<DirEntity> {
             let _: Vec<_> = i
                 .map(|r| match r {
                     Ok(dir_entry) => {
+                        // println!("Walking through {}", dir_entry.path().display());
                         if let Ok(ft) = dir_entry.file_type() {
                             if ft.is_file() {
                                 files.push(FileEntity {
@@ -34,13 +36,19 @@ fn get_dir_entity(path: path::PathBuf) -> Option<DirEntity> {
                     Err(_) => (),
                 })
                 .collect();
+            keep_biggest_files(&mut files);
             Some(DirEntity { files, dirs })
         }
         Err(_) => None,
     }
 }
 
-pub fn walk_dir_entity(path: path::PathBuf) -> Vec<FileEntity> {
+fn keep_biggest_files(files: &mut Vec<FileEntity>) {
+    files.sort_by(|a, b| b.size.cmp(&a.size));
+    files.truncate(TOP);
+}
+
+fn walk_dir_entity(path: path::PathBuf) -> Vec<FileEntity> {
     let mut files: Vec<FileEntity> = Vec::new();
     let mut dirs_to_process: Vec<path::PathBuf> = vec![path];
     loop {
@@ -54,13 +62,11 @@ pub fn walk_dir_entity(path: path::PathBuf) -> Vec<FileEntity> {
             },
             None => break,
         }
+        keep_biggest_files(&mut files);
     }
     files
 }
 
 pub fn biggest_files_in_dir(path: path::PathBuf) -> Vec<FileEntity> {
-    let mut files = walk_dir_entity(path);
-    files.sort_by(|a, b| b.size.cmp(&a.size));
-    files.truncate(10);
-    files
+    walk_dir_entity(path)
 }
