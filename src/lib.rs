@@ -1,9 +1,15 @@
-use std::{fs, path};
+use std::{fmt, fs, path};
 
 #[derive(Debug)]
 pub struct FileEntity {
     path: path::PathBuf,
     size: u64,
+}
+
+impl fmt::Display for FileEntity {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{} Bytes {}", self.size, self.path.display())
+    }
 }
 
 #[derive(Debug)]
@@ -69,4 +75,11 @@ fn walk_dir_entity(path: path::PathBuf, top: usize) -> Vec<FileEntity> {
 
 pub fn biggest_files_in_dir(path: path::PathBuf, top: usize) -> Vec<FileEntity> {
     walk_dir_entity(path, top)
+}
+
+pub fn show(mut files: Vec<FileEntity>) {
+    files.reverse();
+    for file in files {
+        println!("{file}")
+    }
 }

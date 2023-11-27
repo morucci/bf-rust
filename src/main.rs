@@ -18,9 +18,8 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
-    let path = path::Path::new(&args.path).to_path_buf();
-
-    let bf = bf_rust::biggest_files_in_dir(path, args.count);
-
-    println!("{:?}", bf)
+    bf_rust::show(bf_rust::biggest_files_in_dir(
+        path::Path::new(&args.path).to_path_buf(),
+        args.count,
+    ))
 }
